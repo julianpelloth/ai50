@@ -92,8 +92,35 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # Create frontier and explored data structure and add source to frontier
+    frontier = QueueFrontier()
+    frontier.add(Node(source, None, None))
+    explored = StackFrontier()
+
+    while not frontier.empty():
+        current_node = frontier.remove()
+
+        # Check the node contains the target
+        if current_node.person_id == target:
+            # create path
+            path = [(current_node.movie, current_node.person_id)]
+            node = current_node.parent
+            while node.movie is not None:
+                path = [(node.movie, node.person_id)] + path
+                node = node.parent
+
+            return path
+
+        explored.add(current_node)
+
+        neighbors = neighbors_for_person(current_node.person_id)
+        for (movie_id, person_id) in neighbors:
+            if not (explored.contains_state(person_id) or frontier.contains_state(person_id)):
+                frontier.add(Node(person_id, movie_id, current_node))
+
+    return None
+
+    #raise NotImplementedError
 
 
 def person_id_for_name(name):
