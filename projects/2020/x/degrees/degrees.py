@@ -97,6 +97,7 @@ def shortest_path(source, target):
     frontier.add(Node(source, None, None))
     explored = StackFrontier()
 
+    # Iterate through frontier until it is empty or the target is found
     while not frontier.empty():
         current_node = frontier.remove()
 
@@ -111,11 +112,10 @@ def shortest_path(source, target):
         neighbors = neighbors_for_person(current_node.person_id)
         for (movie_id, person_id) in neighbors:
             if not (explored.contains_state(person_id) or frontier.contains_state(person_id)):
-
+                # Check if neighbour is target
                 if person_id is target:
                     return write_path(Node(person_id, movie_id, current_node))
-
-
+                # Add neigbour to frontier
                 frontier.add(Node(person_id, movie_id, current_node))
 
     return None
