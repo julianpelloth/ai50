@@ -1,6 +1,6 @@
 import unittest
 
-from tictactoe import initial_state, player, actions, result, winner, terminal, utility
+from tictactoe import initial_state, player, actions, result, winner, terminal, utility, minimax, getMin, getMax
 
 class MyTestCase(unittest.TestCase):
 
@@ -146,6 +146,43 @@ class MyTestCase(unittest.TestCase):
                  [X, O, EMPTY],
                  [O, X, X]]
         self.assertEqual(utility(board), -1)
+
+    def test_getMax(self):
+        X = "X"
+        O = "O"
+        EMPTY = None
+
+        board = [[EMPTY, X, X],
+                 [O, EMPTY, EMPTY],
+                 [EMPTY, EMPTY, O]]
+        action, util = getMax(board)
+        self.assertEqual(action, (0, 0))
+
+        board = [[EMPTY, EMPTY, X],
+                 [O, EMPTY, EMPTY],
+                 [EMPTY, X, O]]
+        action, util = getMax(board)
+        self.assertEqual(action, (0, 1))
+
+        action, util = getMax(initial_state())
+        self.assertEqual(action, (0, 0))
+
+    def test_getMin(self):
+        X = "X"
+        O = "O"
+        EMPTY = None
+
+        board = [[EMPTY, X, O],
+                 [X, O, EMPTY],
+                 [EMPTY, EMPTY, X]]
+        action, util = getMin(board)
+        self.assertEqual(action, (2, 0))
+
+        board = [[EMPTY, X, X],
+                 [O, EMPTY, EMPTY],
+                 [EMPTY, EMPTY, EMPTY]]
+        action, util = getMin(board)
+        self.assertEqual(action, (0, 0))
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 """
 Tic Tac Toe Player
 """
-
+import copy
 import math
 
 X = "X"
@@ -33,8 +33,8 @@ def player(board):
     # Determine how often each player has played
     num_x = 0
     num_o = 0
-    for i in range(2):
-        for j in range(2):
+    for i in range(3):
+        for j in range(3):
             if board[i][j] == X:
                 num_x = num_x + 1
             if board[i][j] == O:
@@ -74,7 +74,7 @@ def result(board, action):
     if board[i][j] is not EMPTY:
         raise NameError('Not a valid action for the given board')
 
-    new_board = board
+    new_board = copy.deepcopy(board)
     new_board[i][j] = player(board)
     return new_board
 
@@ -133,4 +133,68 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    # Check if the board is not a terminal board
+    if terminal(board):
+        return None
+
+    if player(board) == X:
+        (action, util) = getMax(board)
+    else:
+        (action, util) = getMin(board)
+
+    return action
+
+
+def getMax(board):
+    if player(board) is not X:
+        return None, -1
+
+    act = actions(board)
+    action = act[0]
+    util = -1
+    for a in act:
+        new_board = result(board, a)
+
+        if terminal(new_board):
+            u = utility(new_board)
+            if util < u:
+                util = u
+                action = a
+        else:
+            (x, u) = getMin(new_board)
+            if util < u:
+                util = u
+                action = a
+
+        if util is 1:
+            break
+
+    return action, util
+
+
+def getMin(board):
+    if player(board) is not O:
+        return None, 1
+
+    act = actions(board)
+    action = act[0]
+    util = 1
+    for a in act:
+        new_board = result(board, a)
+
+        if terminal(new_board):
+            u = utility(new_board)
+            if util > u:
+                util = u
+                action = a
+        else:
+            (x, u) = getMax(new_board)
+            if util > u:
+                util = u
+                action = a
+
+        if util is -1:
+            break
+
+    return action, util
+
