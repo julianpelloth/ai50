@@ -107,7 +107,7 @@ class Sentence():
         """
         if len(self.cells) is self.count:
             return self.cells
-        return None
+        return {None}
 
     def known_safes(self):
         """
@@ -115,7 +115,7 @@ class Sentence():
         """
         if self.count is 0:
             return self.cells
-        return None
+        return {None}
 
     def mark_mine(self, cell):
         """
@@ -133,6 +133,19 @@ class Sentence():
         """
         if cell in self.cells:
             self.cells.remove(cell)
+
+    def get_sentence(self):
+        """
+        Getter for the information in the sentence.
+        """
+        return self.cells, self.count
+
+    def update(self, cells, count):
+        """
+        Updates sentence if it can be inferred"
+        """
+        self.cells = cells
+        self.count = count
 
 
 class MinesweeperAI():
@@ -189,7 +202,36 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+
+        self.moves_made.add(cell)
+        self.mark_safe(cell)
+
+        # Select neighbouring cells that are not in moves_made
+        cells = set()
+        (x, y) = cell
+        for i in range(x - 1, x + 2):
+            if i < 0 or i >= self.height:
+                continue
+
+            for j in range(y - 1, y + 2):
+                if j < 0 or j >= self.width:
+                    continue
+
+                if (i, j) in self.mines:
+                    count = count - 1
+                elif (i, j) not in self.moves_made and \
+                        (i, j) not in self.safes:
+                    cells.add((i, j))
+        # Add the new gained knowledge to the knowledge base
+        self.knowledge.append(Sentence(cells, count))
+
+        # Look if any sentence in the knowledge base knows any safes or mines or if two sentences can be inferred
+        # until no sentences can be inferred
+        while True:
+            self.safe_mines()
+            inferred = self.inferred_knowledge()
+            if not inferred:
+                break
 
     def make_safe_move(self):
         """
@@ -200,7 +242,14 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        # Safe moves are the difference between safes moves_made
+        moves = self.safes - self.moves_made
+
+        # If a safe move exists choose a random one
+        if len(moves) is not 0:
+            return moves.pop()
+
+        return None
 
     def make_random_move(self):
         """
@@ -209,4 +258,63 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        moves = set()
+        for i in range(self.height):
+            for j in range(self.width):
+                moves.add((i, j))
+
+        moves = moves.difference(self.moves_made)
+        moves = moves.difference(self.mines)
+
+        if len(moves) is not 0:
+            return moves.pop()  # random.sample(moves, 1)
+
+        return None
+
+    def safe_mines(self):
+        """
+        Check if any sentence in the knowledge base can determine if
+        """
+        new_mines = set()
+        new_safes = set()
+        for sentence in self.knowledge:
+            # Add new mines and safes to the respective sets
+            new_mines = new_mines | sentence.known_mines()
+            new_safes = new_safes | sentence.known_safes()
+
+        # Remove None from the sets
+        new_mines = new_mines - {None}
+        new_safes = new_safes - {None}
+
+        # Mark any new mines and safes in the knowledge base accordingly
+        for mine in new_mines:
+            self.mark_mine(mine)
+        for safe in new_safes:
+            self.mark_safe(safe)
+
+    def inferred_knowledge(self):
+        """
+        Check if any sentence can be inferred and does so if there are any.
+        Returns true if sentences were inferred.
+        """
+        inferred = False
+        for i in range(len(self.knowledge) - 1):
+            (cells_i, count_i) = self.knowledge[i].get_sentence()
+            if len(cells_i) is 0:
+                continue
+
+            for j in range(i + 1, len(self.knowledge)):
+                (cells_j, count_j) = self.knowledge[j].get_sentence()
+                if len(cells_j) is 0:
+                    continue
+
+                # Check if cell_j is subset of cell_i
+                if cells_i >= cells_j:
+                    self.knowledge[i].update(cells_i - cells_j, count_i - count_j)
+                    inferred = True
+                # Check if cell_i is subset of cell_j
+                elif cells_i <= cells_j:
+                    self.knowledge[j].update(cells_j - cells_i, count_j - count_i)
+                    inferred = True
+
+        return inferred
