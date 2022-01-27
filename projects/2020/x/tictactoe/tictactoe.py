@@ -18,6 +18,7 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY]]
 
 
+# Implemented by me
 def player(board):
     """
     Returns player who has the next turn on a board.
@@ -46,6 +47,7 @@ def player(board):
         return X
 
 
+# Implemented by me
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
@@ -64,6 +66,7 @@ def actions(board):
     return action
 
 
+# Implemented by me
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
@@ -79,6 +82,7 @@ def result(board, action):
     return new_board
 
 
+# Implemented by me
 def winner(board):
     """
     Returns the winner of the game, if there is one.
@@ -97,6 +101,7 @@ def winner(board):
     return None
 
 
+# Implemented by me
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
@@ -114,6 +119,7 @@ def terminal(board):
     return tie
 
 
+# Implemented by me
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
@@ -129,6 +135,7 @@ def utility(board):
         return 0
 
 
+# Implemented by me
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
@@ -145,6 +152,7 @@ def minimax(board):
     return action
 
 
+# Implemented by me
 def getMax(board):
     if player(board) is not X:
         return None, -1
@@ -172,6 +180,7 @@ def getMax(board):
     return action, util
 
 
+# Implemented by me
 def getMin(board):
     if player(board) is not O:
         return None, 1
