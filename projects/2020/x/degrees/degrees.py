@@ -84,6 +84,7 @@ def main():
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
 
+# Implemented by me
 def shortest_path(source, target):
     """
     Returns the shortest list of (movie_id, person_id) pairs
@@ -121,9 +122,10 @@ def shortest_path(source, target):
     return None
 
 
+# Implemented by me
 def write_path(node):
     """
-        Returns path of the target person to the source
+    Returns path of the target person to the source
     """
 
     path = [(node.movie, node.person_id)]
