@@ -97,30 +97,42 @@ def shortest_path(source, target):
     frontier.add(Node(source, None, None))
     explored = StackFrontier()
 
+    # Iterate through frontier until it is empty or the target is found
     while not frontier.empty():
         current_node = frontier.remove()
 
         # Check the node contains the target
         if current_node.person_id == target:
             # create path
-            path = [(current_node.movie, current_node.person_id)]
-            node = current_node.parent
-            while node.movie is not None:
-                path = [(node.movie, node.person_id)] + path
-                node = node.parent
+            return write_path(current_node)
 
-            return path
 
         explored.add(current_node)
 
         neighbors = neighbors_for_person(current_node.person_id)
         for (movie_id, person_id) in neighbors:
             if not (explored.contains_state(person_id) or frontier.contains_state(person_id)):
+                # Check if neighbour is target
+                if person_id is target:
+                    return write_path(Node(person_id, movie_id, current_node))
+                # Add neigbour to frontier
                 frontier.add(Node(person_id, movie_id, current_node))
 
     return None
 
-    #raise NotImplementedError
+
+def write_path(node):
+    """
+        Returns path of the target person to the source
+    """
+
+    path = [(node.movie, node.person_id)]
+    node = node.parent
+    while node.movie is not None:
+        path = [(node.movie, node.person_id)] + path
+        node = node.parent
+
+    return path
 
 
 def person_id_for_name(name):
